@@ -16,12 +16,14 @@ const SerialPort    = require('serialport');
 const ReadLineSync  = require('readline-sync');
 const DroneLink     = require('./DroneLink');
 const GPSLink       = require('./GPSLink');
+const CameraCompass = require('./CompassHMC5983');
 
 // List of all serial ports
 var allsports     = new Array();
 
 var dronelink;
 var gpslink;
+var camera_compass;
 var last_drone_gps_update = new Date();
 var last_drone_alt_update = new Date();
 var last_cam_gps_update = new Date();
@@ -86,6 +88,11 @@ function startProcessing() {
   // }
 
   console.log('Starting DroneView...');
+
+  // Start the Camera Compass
+  camera_compass = new CameraCompass;
+
+  // Start reading various data
   setInterval(refreshView, REFRESH_INTERVAL_MS);
 }
 
@@ -117,6 +124,15 @@ function refreshView() {
     }
     else {
       console.log(gpslink.gps);
+    }
+  }
+
+  if(camera_compass != null) {
+    if((now - camera_compass.status.timestamp) > NO_DATA_TIMEOUT_MS) {
+      console.log('No camera Compass update since ' + (now - camera_compass.status.timestamp) / 1000 + ' seconds');
+    }
+    else {
+      console.log(camera_compass.status);
     }
   }
 }
