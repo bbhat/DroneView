@@ -156,10 +156,10 @@ function toHeading(compass, buffer)
   var hz = (buffer[2] << 8) | buffer[3];
   var hy = (buffer[4] << 8) | buffer[5];
 
-  // Convert the values in 16 bit 2's complement form to unsigned form
-  if (hx > 0x07FF) hx = 0xFFFF - hx;
-  if (hz > 0x07FF) hz = 0xFFFF - hz;
-  if (hy > 0x07FF) hy = 0xFFFF - hy;
+  // Convert the values in 16 bit 2's complement form to signed value b/w -2048 to +2047
+  if (hx > 0x07FF) hx = (hx - 0x10000);
+  if (hz > 0x07FF) hz = (hz - 0x10000);
+  if (hy > 0x07FF) hy = (hy - 0x10000);
 
   var heading = 0.0;
 
