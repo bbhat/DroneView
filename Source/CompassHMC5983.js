@@ -169,6 +169,11 @@ function toHeading(compass, buffer)
   if (hy == 0 && hx < 0) heading = 180;
   if (hy == 0 && hx > 0) heading = 0;
 
+  // Compansate for the board layout and earth's geographical rotation at Milpitas CA)
+  heading += 90;                // The chip orientation on the board
+  heading %= 360;
+  heading = (360 - heading);    // The chip on the reverse side
+
   // Update heading
   compass.status.hdg = heading;
 
