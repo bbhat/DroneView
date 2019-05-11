@@ -34,7 +34,7 @@ class GPSLink extends EventEmitter {
 
     this._gpsportname = portname;
     this._gpsport     = new SerialPort(this._gpsportname, {
-                          baudRate: 57600
+                          baudRate: 9600
                         });
     this.gps          = new GPSStatus;
 
