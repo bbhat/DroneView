@@ -10,3 +10,4 @@ npm install gps
 npm install i2c-bus
 npm install assert
 npm install math
+npm install node-onvif

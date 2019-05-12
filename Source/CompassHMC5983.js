@@ -118,8 +118,6 @@ function dataReady(compass)
 
       // Now read the temperature as well
       readTemperature(compass);
-
-      console.log(compass.status);
     });
   });
 }
