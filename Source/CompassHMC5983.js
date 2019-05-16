@@ -40,7 +40,7 @@ const BUS_NUM               = 1;        // We are using I2C_1 bus on Raspberry P
 //------------------------------------------------------------------------------
 class CompassStatus {
     constructor() {
-      this.timestamp = 0;
+      this.timestamp = new Date();;
       this.hdg = 0.0;
       this.temperature = 0.0;
     }

@@ -18,6 +18,8 @@ const DroneLink     = require('./DroneLink');
 const GPSLink       = require('./GPSLink');
 const CameraCompass = require('./CompassHMC5983');
 const CameraControl = require('./CameraControl');
+const GPS           = require('gps');
+const Config        = require('./Config');
 
 // List of all serial ports
 var allsports     = new Array();
@@ -50,7 +52,10 @@ SerialPort.list(function(err, ports) {
   });
 
   // Read user input for Dronelink serial port
-  var selection = ReadLineSync.keyInSelect(allsports, 'Please select the mavlink serial interface: ');
+  var selection = Config.MavlinkPortNum;
+  if(selection <= 0) {
+    ReadLineSync.keyInSelect(allsports, 'Please select the mavlink serial interface: ');
+  }
   if (selection > 0) {
 
     dronelink = new DroneLink(allsports[selection]);
@@ -69,7 +74,10 @@ SerialPort.list(function(err, ports) {
   //------------------------------------------------------------------------------
 
   // Read user input for GPSLink serial port
-  var selection = ReadLineSync.keyInSelect(allsports, 'Please select the GPS serial interface: ');
+  var selection = Config.CameraGPSPortNum;
+  if(selection <= 0) {
+      selection = ReadLineSync.keyInSelect(allsports, 'Please select the GPS serial interface: ');
+  }
   if (selection > 0) {
 
     gpslink = new GPSLink(allsports[selection]);
@@ -160,8 +168,29 @@ function redirectCamera(drone_gps, drone_baro, camera_gps, camera_compass_status
 {
   //console.log('redirectCamera...');
 
-  if(camera_compass_status != null) {
-    var xdeg = (camera_compass_status.hdg - 180.0);
+  if(drone_gps != null &&
+      drone_baro != null &&
+      camera_gps != null &&
+      camera_compass_status != null) {
+
+    // 1. Calculate Drone's direction wrt Magnetic North
+    var abs_heading = GPS.Heading(camera_gps.lat, camera_gps.lon, drone_gps.lat, drone_gps.lon);
+
+    // 2. Camera's direction wrt Magnetic North
+    var cam_heading = camera_compass_status.hdg;
+
+    // 3. Calculate relative heading
+    var rel_heading = (abs_heading + 360 - cam_heading) % 360;
+
+    // Direct the Camera. Convert heading to range b/w -180 to +180
+    var xdeg = (rel_heading - 180.0);
     CameraControl.setPosition(xdeg, 0);
+  }
+  else {
+    // Treat it like test MODE
+    if(camera_compass_status != null) {
+      var xdeg = (camera_compass_status.hdg - 180.0);
+      CameraControl.setPosition(xdeg, 0);
+    }
   }
 }
