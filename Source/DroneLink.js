@@ -18,8 +18,27 @@ const EventEmitter  = require('events');
 class DroneGPSStatus {
     constructor() {
       this.timestamp = 0;
-      this.lat = 0.0;
+
+      this.lat = 0.0,
       this.lon = 0.0;
+
+      // Left test coordinates (Veda Temple)
+      // this.lat = 37.431193,
+      // this.lon = -121.9015449;
+
+      // Right test coordinates (Selwyn Park)
+      // this.lat = 37.4334226,
+      // this.lon = -121.8850117;
+
+      // North test coordinates (Golf land)
+      // this.lat = 37.4422842,
+      // this.lon = -121.893151;
+
+
+      // South test coordinates (Target)
+      // this.lat = 37.4231542,
+      // this.lon = -121.8894507;
+
       this.alt = 0.0;
       this.relative_alt = 0.0;
       this.hdg = 0.0;

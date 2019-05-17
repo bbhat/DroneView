@@ -50,8 +50,12 @@ class GPSLink extends EventEmitter {
 
     position.on('data', (data) => {
       this.gps.timestamp = position.state.time;
+      // Test Values at home
+      // this.gps.lat = 37.432089166666664;
+      // this.gps.lon = -121.89054716666666;
       this.gps.lat = position.state.lat;
       this.gps.lon = position.state.lon;
+      
       this.gps.alt = position.state.alt;
       this.emit('global_position');
     });

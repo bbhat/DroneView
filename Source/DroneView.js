@@ -195,22 +195,35 @@ function redirectCamera(drone_gps, drone_baro, camera_gps, camera_compass_status
     // 1. Calculate Drone's direction wrt Magnetic North
     var abs_heading = GPS.Heading(camera_gps.lat, camera_gps.lon, drone_gps.lat, drone_gps.lon);
 
+    console.log('abs_heading = ' + abs_heading);
+
     // 2. Camera's direction wrt Magnetic North
     var cam_heading = camera_compass_status.hdg;
+
+    console.log('cam_heading = ' + cam_heading);
 
     // 3. Calculate relative heading
     var rel_heading = (abs_heading + 360 - cam_heading) % 360;
 
+    console.log('rel_heading = ' + rel_heading);
+
     // Direct the Camera. Convert heading to range b/w -180 to +180
-    var xdeg = (rel_heading - 180.0);
+    var xdeg = rel_heading;
+    if(xdeg > 180) {
+      xdeg = (xdeg - 360);
+    }
 
     console.log('--------------------------------------------->>> set CAMERA Position: ' + xdeg + ' ' + 0 + ' degrees');
     CameraControl.setPosition(xdeg, 0);
   }
   else {
     // Treat it like test MODE
+    // Direct the Camera. Convert heading to range b/w -180 to +180
     if(camera_compass_status != null) {
-      var xdeg = (camera_compass_status.hdg - 180.0);
+      var xdeg = camera_compass_status.hdg;
+      if(xdeg > 180) {
+        xdeg = (xdeg - 360);
+      }
 
       console.log('---------------------------------------------<<< Hold CAMERA Position: ' + xdeg + ' ' + 0 + ' degrees >>>');
       CameraControl.setPosition(xdeg, 0);

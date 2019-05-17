@@ -167,10 +167,13 @@ function toHeading(compass, buffer)
   if (hy == 0 && hx < 0) heading = 180;
   if (hy == 0 && hx > 0) heading = 0;
 
-  // Compansate for the board layout and earth's geographical rotation at Milpitas CA)
-  heading += 90;                // The chip orientation on the board
-  heading %= 360;
+  // console.log('raw camera heading: ' + heading);
+
+  // Compansate for the board layout and earth's geographical rotation at Milpitas CA) which is at 16 degrees
+  heading = (heading + 360 - 90 - 16) % 360;
   heading = (360 - heading);    // The chip on the reverse side
+
+  // console.log('calculated camera heading: ' + heading);
 
   // Update heading
   compass.status.hdg = heading;
