@@ -15,7 +15,7 @@ const EventEmitter  = require('events');
 //------------------------------------------------------------------------------
 //        GPS class
 //------------------------------------------------------------------------------
-class GPSStatus {
+class CameraGPSStatus {
     constructor() {
       this.timestamp = 0;
       this.lat = 0;
@@ -36,7 +36,7 @@ class GPSLink extends EventEmitter {
     this._gpsport     = new SerialPort(this._gpsportname, {
                           baudRate: 9600
                         });
-    this.gps          = new GPSStatus;
+    this.gps          = new CameraGPSStatus;
 
     this._gpsport.on('open', () => {
       console.log('Serial port ' + this._gpsportname + ' ' + 'opened successfully. Waiting for data...');

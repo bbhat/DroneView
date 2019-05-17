@@ -15,7 +15,7 @@ const EventEmitter  = require('events');
 //------------------------------------------------------------------------------
 //        GPS class
 //------------------------------------------------------------------------------
-class GPSStatus {
+class DroneGPSStatus {
     constructor() {
       this.timestamp = 0;
       this.lat = 0.0;
@@ -29,7 +29,7 @@ class GPSStatus {
 //------------------------------------------------------------------------------
 //        Baro class
 //------------------------------------------------------------------------------
-class BaroStatus {
+class DroneBaroStatus {
   constructor() {
     this.timestamp = 0;
     this.alt = 0.0;
@@ -49,8 +49,8 @@ class DroneLink extends EventEmitter {
                           baudRate: 57600
                         });
     this.temperature = 0.0;
-    this.gps = new GPSStatus;
-    this.baro = new BaroStatus;
+    this.gps = new DroneGPSStatus;
+    this.baro = new DroneBaroStatus;
 
     // Create a new mavlink instance passing (sysid, compid, version, definitions)
     // Pass 0, 0 so that we can receive all incoming messages
@@ -88,9 +88,9 @@ class DroneLink extends EventEmitter {
       this.gps.timestamp = fields.timestamp;
       this.gps.lat = fields.lat / 10000000.0; // Convert to float from degE7 format
       this.gps.lon = fields.lon / 10000000.0; // Convert to float from degE7 format
-      this.gps.alt = fields.alt / 1000.0;      // Convert from mm to Meters
-      this.gps.relative_alt = fields.relative_alt;
-      this.gps.hdg = fields.hdg;
+      this.gps.alt = fields.alt / 1000.0;     // Convert from mm to Meters
+      this.gps.relative_alt = fields.relative_alt / 1000.0;      // Convert from mm to Meters
+      this.gps.hdg = fields.hdg / 100.0;      // Convert from 100th of degrees to float degrees
 
       this.emit('global_position');
     });

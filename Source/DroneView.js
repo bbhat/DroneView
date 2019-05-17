@@ -115,13 +115,18 @@ function refreshView()
   var drone_baro = null;
   var camera_gps = null;
   var camera_compass_status = null;
+  var missing_data = false;
 
   var now = new Date();
 
   if(dronelink != null) {
 
     if((now - last_drone_gps_update) > NO_DATA_TIMEOUT_MS) {
-      console.log('No drone GPS update since ' + (now - last_drone_gps_update) / 1000 + ' seconds');
+      console.log('******************** No DRONE GPS update since ' + (now - last_drone_gps_update) / 1000 + ' seconds');
+
+      // Still, use the last known drone Position...
+      drone_gps = dronelink.gps;
+      missing_data = true;
     }
     else {
       drone_gps = dronelink.gps;
@@ -129,7 +134,11 @@ function refreshView()
     }
 
     if((now - last_drone_alt_update) > NO_DATA_TIMEOUT_MS) {
-      console.log('No drone altitude update since ' + (now - last_drone_alt_update) / 1000 + ' seconds');
+      console.log('******************** No DRONE altitude update since ' + (now - last_drone_alt_update) / 1000 + ' seconds');
+
+      // Still, use the last known drone Position...
+      drone_baro = dronelink.baro;
+      missing_data = true;
     }
     else {
       drone_baro = dronelink.baro;
@@ -140,7 +149,11 @@ function refreshView()
 
   if(gpslink != null) {
     if((now - last_cam_gps_update) > NO_DATA_TIMEOUT_MS) {
-      console.log('No camera GPS update since ' + (now - last_cam_gps_update) / 1000 + ' seconds');
+      console.log('******************** No CAMERA GPS update since ' + (now - last_cam_gps_update) / 1000 + ' seconds');
+
+      // Still, use the last known Position...
+      camera_gps = gpslink.gps;
+      missing_data = true;
     }
     else {
       camera_gps = gpslink.gps;
@@ -150,7 +163,11 @@ function refreshView()
 
   if(camera_compass != null) {
     if((now - camera_compass.status.timestamp) > NO_DATA_TIMEOUT_MS) {
-      console.log('No camera Compass update since ' + (now - camera_compass.status.timestamp) / 1000 + ' seconds');
+      console.log('******************** No CAMERA Compass update since ' + (now - camera_compass.status.timestamp) / 1000 + ' seconds');
+
+      // Still, use the last known Position...
+      camera_compass_status = camera_compass.status;
+      missing_data = true;
     }
     else {
       camera_compass_status = camera_compass.status;
@@ -161,14 +178,16 @@ function refreshView()
   redirectCamera(drone_gps,
                  drone_baro,
                  camera_gps,
-                 camera_compass_status);
+                 camera_compass_status,
+                 missing_data);
 }
 
-function redirectCamera(drone_gps, drone_baro, camera_gps, camera_compass_status)
+function redirectCamera(drone_gps, drone_baro, camera_gps, camera_compass_status, missing_data)
 {
   //console.log('redirectCamera...');
 
-  if(drone_gps != null &&
+  if( missing_data == false &&
+      drone_gps != null &&
       drone_baro != null &&
       camera_gps != null &&
       camera_compass_status != null) {
@@ -184,12 +203,16 @@ function redirectCamera(drone_gps, drone_baro, camera_gps, camera_compass_status
 
     // Direct the Camera. Convert heading to range b/w -180 to +180
     var xdeg = (rel_heading - 180.0);
+
+    console.log('--------------------------------------------->>> set CAMERA Position: ' + xdeg + ' ' + 0 + ' degrees');
     CameraControl.setPosition(xdeg, 0);
   }
   else {
     // Treat it like test MODE
     if(camera_compass_status != null) {
       var xdeg = (camera_compass_status.hdg - 180.0);
+
+      console.log('---------------------------------------------<<< Hold CAMERA Position: ' + xdeg + ' ' + 0 + ' degrees >>>');
       CameraControl.setPosition(xdeg, 0);
     }
   }

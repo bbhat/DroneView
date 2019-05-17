@@ -68,8 +68,6 @@ function redirectCamera(device)
 
 function setPosition(xdeg, ydeg)
 {
-  console.log('setPosition: ' + xdeg + ' ' + ydeg);
-
   if(xdeg < -180.0) xdeg = -180.0;
   if(xdeg > 180.0) xdeg = 180.0;
   if(ydeg < 0.0) ydeg = 0;
