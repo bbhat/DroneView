@@ -20,6 +20,8 @@ const CameraCompass = require('./CompassHMC5983');
 const CameraControl = require('./CameraControl');
 const GPS           = require('gps');
 const Config        = require('./Config');
+const CameraBaro    = require('./CameraBMP180');
+const Math          = require('math');
 
 // List of all serial ports
 var allsports     = new Array();
@@ -28,6 +30,7 @@ var dronelink;
 var gpslink;
 var camera_compass;
 var camera_control;
+var camera_baro;
 var last_drone_gps_update = new Date();
 var last_drone_alt_update = new Date();
 var last_cam_gps_update = new Date();
@@ -105,6 +108,9 @@ function startProcessing() {
   // Start CameraControl
   CameraControl.cameraInit();
 
+  // Start Camera Baro
+  camera_baro = new CameraBaro;
+
   // Start reading various data
   setInterval(refreshView, REFRESH_INTERVAL_MS);
 }
@@ -115,6 +121,7 @@ function refreshView()
   var drone_baro = null;
   var camera_gps = null;
   var camera_compass_status = null;
+  var camera_baro_status = null;
   var missing_data = false;
 
   var now = new Date();
@@ -175,14 +182,29 @@ function refreshView()
     }
   }
 
+  if(camera_baro != null) {
+    if((now - camera_baro.status.timestamp) > NO_DATA_TIMEOUT_MS) {
+      console.log('******************** No CAMERA Baro update since ' + (now - camera_baro.status.timestamp) / 1000 + ' seconds');
+
+      // Still, use the last known Position...
+      camera_baro_status = camera_baro.status;
+      missing_data = true;
+    }
+    else {
+      camera_baro_status = camera_baro.status;
+      console.log(camera_baro_status);
+    }
+  }
+
   redirectCamera(drone_gps,
                  drone_baro,
                  camera_gps,
                  camera_compass_status,
+                 camera_baro_status,
                  missing_data);
 }
 
-function redirectCamera(drone_gps, drone_baro, camera_gps, camera_compass_status, missing_data)
+function redirectCamera(drone_gps, drone_baro, camera_gps, camera_compass_status, camera_baro_status, missing_data)
 {
   //console.log('redirectCamera...');
 
@@ -190,10 +212,12 @@ function redirectCamera(drone_gps, drone_baro, camera_gps, camera_compass_status
       drone_gps != null &&
       drone_baro != null &&
       camera_gps != null &&
-      camera_compass_status != null) {
+      camera_compass_status != null &&
+      camera_baro_status != null) {
 
     // 1. Calculate Drone's direction wrt Magnetic North
     var abs_heading = GPS.Heading(camera_gps.lat, camera_gps.lon, drone_gps.lat, drone_gps.lon);
+    var drone_distance = GPS.Distance(camera_gps.lat, camera_gps.lon, drone_gps.lat, drone_gps.lon) * 1000.0; // In meters
 
     console.log('abs_heading = ' + abs_heading);
 
@@ -213,7 +237,13 @@ function redirectCamera(drone_gps, drone_baro, camera_gps, camera_compass_status
       xdeg = (xdeg - 360);
     }
 
-    console.log('--------------------------------------------->>> set CAMERA Position: ' + xdeg + ' ' + 0 + ' degrees');
+    // Now the Y direction
+    var ydeg = 0;
+    if(drone_baro.alt >= camera_baro_status.altitude) {
+      ydeg = Math.atan((drone_baro.alt - camera_baro_status.altitude) / drone_distance);
+    }
+
+    console.log('--------------------------------------------->>> set CAMERA Position: ' + xdeg + ' ' + ydeg + ' degrees');
     CameraControl.setPosition(xdeg, 0);
   }
   else {

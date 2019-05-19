@@ -9,7 +9,6 @@
 
 const I2C     = require('i2c-bus');
 const assert  = require('assert');
-const math    = require('math');
 const Config  = require('./Config');
 
 const REFRESH_INTERVAL_MS = 1000;
@@ -235,7 +234,7 @@ function calculateTruePrssure(baro, UT, UP)
   // console.log('B5: ' + B5);
   const TT = (B5 + 8) >> 4;     // True Temperature in degrees in 1/10th of a degree
   // console.log('TT: ' + TT);
-  baro.temperature = TT / 10.0;       // Temperature in degrees
+  baro.status.temperature = TT / 10.0;       // Temperature in degrees
   // console.log('Temperature (degrees): ' + baro.temperature);
 
   const B6 = B5 - 4000;
@@ -280,15 +279,18 @@ function calculateTruePrssure(baro, UT, UP)
   // console.log('X2: ' + X2);
   const TP = p + ((X1 + X2 + 3791) >> 4);     // True pressure
   // console.log('TP: ' + TP);
-  baro.pressure = TP;                         // In Pa units
+  baro.status.pressure = TP;                         // In Pa units
 
   const ALT = 44330 * (1 - Math.pow((TP / Config.PressureAtSeaLevel), (1 / 5.255)));
-  baro.altitude = ALT;
+  baro.status.altitude = ALT;
   console.log('Altitude (meters): ' + baro.altitude);
 
   // To calculate PressureAtSeaLevel, we need a known TP and Altitude
   // const P0 = TP / Math.pow((1 - (10.47 / 44330)), 5.255);
   // console.log('P0: ' + P0);
+
+  // Update timestamp
+  baro.status.timestamp = new Date();
 }
 
 // var cameraBaroStatus = new BaroBMP180;

@@ -117,7 +117,7 @@ class DroneLink extends EventEmitter {
     this._mavlink.on('HIGHRES_IMU', (message, fields) => {
       // console.log('HIGHRES_IMU (pressure_alt: ' + fields.pressure_alt +
       //                      ' temperature: ' + fields.temperature);
-      this.baro.alt = fields.pressure_alt;
+      this.baro.alt = fields.pressure_alt / 1000.0;   // Convert mm to Meters
       this.temperature = fields.temperature;
       this.emit('pressure_alt');
     });
