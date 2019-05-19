@@ -10,6 +10,7 @@
 const I2C     = require('i2c-bus');
 const assert  = require('assert');
 const math    = require('math');
+const Config  = require('./Config');
 
 const REFRESH_INTERVAL_MS = 1000;
 
@@ -30,8 +31,8 @@ const REG_CALIB_21          = 0xBF;
 const REG_CALIB_00          = 0xAA;
 
 const CMD_SOFT_RESET        = 0xB6;
-// const OSS                   = 3;      // Oversampling setting of 8 samples per measurement
-const OSS                   = 0;        // Test
+const OSS                   = 3;      // Oversampling setting of 8 samples per measurement
+// const OSS                   = 0;     // Test
 const CMD_START_TEMP_MEAS   = ((1 << 5) | (OSS << 6) | 0x0E);  // Start Temperature measurement, 8 samples
 const CMD_START_PRES_MEAS   = ((1 << 5) | (OSS << 6) | 0x14);  // Start Pressure measurement, 8 samples
 
@@ -120,7 +121,7 @@ function readCaliberationData(baro)
 
     baro.i2cbus.i2cRead(BMP180_ADDR, caliberationBuf.length, caliberationBuf, () => {
 
-      console.log(caliberationBuf);
+      // console.log(caliberationBuf);
 
       caliberationData.AC1  = caliberationBuf.readInt16BE(0);
       caliberationData.AC2  = caliberationBuf.readInt16BE(2);
@@ -147,7 +148,7 @@ function readCaliberationData(baro)
       // caliberationData.MC   = -8711;
       // caliberationData.MD   = 2868;
 
-      console.log(caliberationData);
+      // console.log(caliberationData);
       setInterval(startTempMeasurement, REFRESH_INTERVAL_MS, baro);
     });
   });
@@ -155,7 +156,7 @@ function readCaliberationData(baro)
 
 function startTempMeasurement(baro)
 {
-  console.log('startTempMeasurement');
+  // console.log('startTempMeasurement');
 
   const cmdStartMeas = Buffer.from([REG_CTRL_MEAS, CMD_START_TEMP_MEAS]);
   baro.i2cbus.i2cWrite(BMP180_ADDR, cmdStartMeas.length, cmdStartMeas, () => {
@@ -166,7 +167,7 @@ function startTempMeasurement(baro)
 
 function readTemperature(baro)
 {
-  console.log('readTemperature');
+  // console.log('readTemperature');
 
   const cmdSetRegPtr = Buffer.from([REG_OUT_MSB]);
   baro.i2cbus.i2cWrite(BMP180_ADDR, cmdSetRegPtr.length, cmdSetRegPtr, () => {
@@ -181,7 +182,7 @@ function readTemperature(baro)
 
 function startPressureMeasurement(baro, UT)
 {
-  console.log('startPressureMeasurement');
+  // console.log('startPressureMeasurement');
 
   const cmdStartMeas = Buffer.from([REG_CTRL_MEAS, CMD_START_PRES_MEAS]);
   baro.i2cbus.i2cWrite(BMP180_ADDR, cmdStartMeas.length, cmdStartMeas, () => {
@@ -192,7 +193,7 @@ function startPressureMeasurement(baro, UT)
 
 function readPressure(baro, UT)
 {
-  console.log('readPressure');
+  // console.log('readPressure');
 
   const cmdSetRegPtr = Buffer.from([REG_OUT_MSB]);
   baro.i2cbus.i2cWrite(BMP180_ADDR, cmdSetRegPtr.length, cmdSetRegPtr, () => {
@@ -210,8 +211,8 @@ function readPressure(baro, UT)
 
 function calculateTruePrssure(baro, UT, UP)
 {
-  console.log('UT: ' + UT);
-  console.log('UP: ' + UP);
+  // console.log('UT: ' + UT);
+  // console.log('UP: ' + UP);
 
   const AC1  = caliberationData.AC1;
   const AC2  = caliberationData.AC2;
@@ -227,39 +228,39 @@ function calculateTruePrssure(baro, UT, UP)
 
   // First calculate True Temperature
   var X1 = ((UT - AC6) * AC5) >> 15;
-  console.log('X1: ' + X1);
+  // console.log('X1: ' + X1);
   var X2 = ((MC * (1 << 11)) / (X1 + MD)) << 0;
-  console.log('X2: ' + X2);
+  // console.log('X2: ' + X2);
   const B5 = (X1 + X2);
-  console.log('B5: ' + B5);
+  // console.log('B5: ' + B5);
   const TT = (B5 + 8) >> 4;     // True Temperature in degrees in 1/10th of a degree
-  console.log('TT: ' + TT);
+  // console.log('TT: ' + TT);
   baro.temperature = TT / 10.0;       // Temperature in degrees
-  console.log('Temperature (degrees): ' + baro.temperature);
+  // console.log('Temperature (degrees): ' + baro.temperature);
 
   const B6 = B5 - 4000;
-  console.log('B6: ' + B6);
+  // console.log('B6: ' + B6);
 
   X1 = (B2 * ((B6 * B6) >> 12)) >> 11;
-  console.log('X1: ' + X1);
+  // console.log('X1: ' + X1);
   X2 = (AC2 * B6) >> 11;
-  console.log('X2: ' + X2);
+  // console.log('X2: ' + X2);
   X3 = X1 + X2;
-  console.log('X3: ' + X3);
+  // console.log('X3: ' + X3);
   const B3 = (((AC1 * 4 + X3) * (1 << OSS)) + 2) >> 2;
-  console.log('B3: ' + B3);
+  // console.log('B3: ' + B3);
 
   X1 = (AC3 * B6) >> 13;
-  console.log('X1: ' + X1);
+  // console.log('X1: ' + X1);
   X2 = (B1 * ((B6 * B6) >> 12)) >> 16;
-  console.log('X2: ' + X2);
+  // console.log('X2: ' + X2);
   X3 = ((X1 + X2) + 2) >> 2;
-  console.log('X3: ' + X3);
+  // console.log('X3: ' + X3);
   const B4 = (AC4 * (X3 + 32768)) >> 15;
-  console.log('B4: ' + B4);
+  // console.log('B4: ' + B4);
 
   const B7 = ((UP - B3) * (50000 >> OSS));
-  console.log('B7: ' + B7);
+  // console.log('B7: ' + B7);
 
   var p;
   if(B7 < 0x80000000) {
@@ -269,23 +270,27 @@ function calculateTruePrssure(baro, UT, UP)
     p = (B7 / B4) * 2;
   }
   p = (p << 0);           // Convert to Integer
-  console.log('p: ' + p);
+  // console.log('p: ' + p);
 
   X1 = (p >> 8) * (p >> 8);
-  console.log('X1: ' + X1);
+  // console.log('X1: ' + X1);
   X1 = (X1 * 3038) >> 16;
-  console.log('X1: ' + X1);
+  // console.log('X1: ' + X1);
   X2 = (-7357 * p) >> 16;
-  console.log('X2: ' + X2);
+  // console.log('X2: ' + X2);
   const TP = p + ((X1 + X2 + 3791) >> 4);     // True pressure
-  console.log('TP: ' + TP);
+  // console.log('TP: ' + TP);
   baro.pressure = TP;                         // In Pa units
 
-  const ALT = 44330 * (1 - Math.pow((TP / 100920), (1 / 5.255)));
+  const ALT = 44330 * (1 - Math.pow((TP / Config.PressureAtSeaLevel), (1 / 5.255)));
   baro.altitude = ALT;
   console.log('Altitude (meters): ' + baro.altitude);
+
+  // To calculate PressureAtSeaLevel, we need a known TP and Altitude
+  // const P0 = TP / Math.pow((1 - (10.47 / 44330)), 5.255);
+  // console.log('P0: ' + P0);
 }
 
-var cameraBaroStatus = new BaroBMP180;
+// var cameraBaroStatus = new BaroBMP180;
 
-//module.exports = BaroBMP180;
+module.exports = BaroBMP180;
