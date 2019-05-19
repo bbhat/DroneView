@@ -161,7 +161,6 @@ function toHeading(compass, buffer)
 
   var heading = 0.0;
 
-  // This logic taken from https://github.com/D1W0U/Arduino-HMC5983/blob/master/HMC5983.cpp
   if (hy > 0) heading = 90.0 - math.atan(hx / hy) * 180.0 / math.PI;
   if (hy < 0) heading = 270.0 - math.atan(hx / hy) * 180.0 / math.PI;
   if (hy == 0 && hx < 0) heading = 180;
