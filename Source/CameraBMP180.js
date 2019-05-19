@@ -30,7 +30,7 @@ const REG_CALIB_21          = 0xBF;
 const REG_CALIB_00          = 0xAA;
 
 const CMD_SOFT_RESET        = 0xB6;
-//const OSS                   = 3;      // Oversampling setting of 8 samples per measurement
+// const OSS                   = 3;      // Oversampling setting of 8 samples per measurement
 const OSS                   = 0;        // Test
 const CMD_START_TEMP_MEAS   = ((1 << 5) | (OSS << 6) | 0x0E);  // Start Temperature measurement, 8 samples
 const CMD_START_PRES_MEAS   = ((1 << 5) | (OSS << 6) | 0x14);  // Start Pressure measurement, 8 samples
@@ -122,30 +122,30 @@ function readCaliberationData(baro)
 
       console.log(caliberationBuf);
 
-      // caliberationData.AC1  = caliberationBuf.readInt16BE(0);
-      // caliberationData.AC2  = caliberationBuf.readInt16BE(2);
-      // caliberationData.AC3  = caliberationBuf.readInt16BE(4);
-      // caliberationData.AC4  = caliberationBuf.readUInt16BE(6);
-      // caliberationData.AC5  = caliberationBuf.readUInt16BE(8);
-      // caliberationData.AC6  = caliberationBuf.readUInt16BE(10);
-      // caliberationData.B1   = caliberationBuf.readInt16BE(12);
-      // caliberationData.B2   = caliberationBuf.readInt16BE(14);
-      // caliberationData.MB   = caliberationBuf.readInt16BE(16);
-      // caliberationData.MC   = caliberationBuf.readInt16BE(18);
-      // caliberationData.MD   = caliberationBuf.readInt16BE(20);
+      caliberationData.AC1  = caliberationBuf.readInt16BE(0);
+      caliberationData.AC2  = caliberationBuf.readInt16BE(2);
+      caliberationData.AC3  = caliberationBuf.readInt16BE(4);
+      caliberationData.AC4  = caliberationBuf.readUInt16BE(6);
+      caliberationData.AC5  = caliberationBuf.readUInt16BE(8);
+      caliberationData.AC6  = caliberationBuf.readUInt16BE(10);
+      caliberationData.B1   = caliberationBuf.readInt16BE(12);
+      caliberationData.B2   = caliberationBuf.readInt16BE(14);
+      caliberationData.MB   = caliberationBuf.readInt16BE(16);
+      caliberationData.MC   = caliberationBuf.readInt16BE(18);
+      caliberationData.MD   = caliberationBuf.readInt16BE(20);
 
       // Test Data
-      caliberationData.AC1  = 408;
-      caliberationData.AC2  = -72;
-      caliberationData.AC3  = -14383;
-      caliberationData.AC4  = 32741;
-      caliberationData.AC5  = 32757;
-      caliberationData.AC6  = 23153;
-      caliberationData.B1   = 6190;
-      caliberationData.B2   = 4;
-      caliberationData.MB   = -32768;
-      caliberationData.MC   = -8711;
-      caliberationData.MD   = 2868;
+      // caliberationData.AC1  = 408;
+      // caliberationData.AC2  = -72;
+      // caliberationData.AC3  = -14383;
+      // caliberationData.AC4  = 32741;
+      // caliberationData.AC5  = 32757;
+      // caliberationData.AC6  = 23153;
+      // caliberationData.B1   = 6190;
+      // caliberationData.B2   = 4;
+      // caliberationData.MB   = -32768;
+      // caliberationData.MC   = -8711;
+      // caliberationData.MD   = 2868;
 
       console.log(caliberationData);
       setInterval(startTempMeasurement, REFRESH_INTERVAL_MS, baro);
@@ -172,8 +172,8 @@ function readTemperature(baro)
   baro.i2cbus.i2cWrite(BMP180_ADDR, cmdSetRegPtr.length, cmdSetRegPtr, () => {
     var temperatureBuf = Buffer.alloc(2);
     baro.i2cbus.i2cRead(BMP180_ADDR, temperatureBuf.length, temperatureBuf, () => {
-      // const UT = temperatureBuf.readUInt16BE(0);
-      const UT = 27898;  // Test Data
+      const UT = temperatureBuf.readUInt16BE(0);
+      // const UT = 27898;  // Test Data
       setImmediate(startPressureMeasurement, baro, UT);
     });
   });
@@ -198,11 +198,11 @@ function readPressure(baro, UT)
   baro.i2cbus.i2cWrite(BMP180_ADDR, cmdSetRegPtr.length, cmdSetRegPtr, () => {
     var pressureBuf = Buffer.alloc(3);
     baro.i2cbus.i2cRead(BMP180_ADDR, pressureBuf.length, pressureBuf, () => {
-      // const UP = ((pressureBuf[0] << 16) |
-      //             (pressureBuf[1] << 8) |
-      //             (pressureBuf[2])) >> (8 - OSS);
+      const UP = ((pressureBuf[0] << 16) |
+                  (pressureBuf[1] << 8) |
+                  (pressureBuf[2])) >> (8 - OSS);
 
-      const UP = 23843; // Test Data
+      // const UP = 23843; // Test Data
       setImmediate(calculateTruePrssure, baro, UT, UP);
     });
   });
@@ -228,7 +228,7 @@ function calculateTruePrssure(baro, UT, UP)
   // First calculate True Temperature
   var X1 = ((UT - AC6) * AC5) >> 15;
   console.log('X1: ' + X1);
-  var X2 = (MC << 11) / (X1 + MD);
+  var X2 = ((MC * (1 << 11)) / (X1 + MD)) << 0;
   console.log('X2: ' + X2);
   const B5 = (X1 + X2);
   console.log('B5: ' + B5);
@@ -246,7 +246,7 @@ function calculateTruePrssure(baro, UT, UP)
   console.log('X2: ' + X2);
   X3 = X1 + X2;
   console.log('X3: ' + X3);
-  const B3 = (((AC1 * 4 + X3) << OSS) + 2) >> 2;
+  const B3 = (((AC1 * 4 + X3) * (1 << OSS)) + 2) >> 2;
   console.log('B3: ' + B3);
 
   X1 = (AC3 * B6) >> 13;
@@ -263,10 +263,10 @@ function calculateTruePrssure(baro, UT, UP)
 
   var p;
   if(B7 < 0x80000000) {
-    p = (B7 * 2) / B4;    // Avoid bitvice operators to force floating point operation
+    p = (B7 * 2) / B4;
   }
   else {
-    p = (B7 / B4) * 2;    // Avoid bitvice operators to force floating point operation
+    p = (B7 / B4) * 2;
   }
   p = (p << 0);           // Convert to Integer
   console.log('p: ' + p);
@@ -281,7 +281,7 @@ function calculateTruePrssure(baro, UT, UP)
   console.log('TP: ' + TP);
   baro.pressure = TP;                         // In Pa units
 
-  const ALT = 44330 * (1 - Math.pow((TP / 101325), (1 / 5.255)));
+  const ALT = 44330 * (1 - Math.pow((TP / 100920), (1 / 5.255)));
   baro.altitude = ALT;
   console.log('Altitude (meters): ' + baro.altitude);
 }
