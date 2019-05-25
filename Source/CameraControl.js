@@ -8,6 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 const onvif = require('node-onvif');
+const Config = require('./Config');
 
 const CAMERA_MOVE_INTERVAL_MS = 1000;
 
@@ -19,7 +20,7 @@ function cameraInit()
 {
   // Create an OnvifDevice object
   device = new onvif.OnvifDevice({
-    xaddr: 'http://10.0.0.99:80/onvif/device_service',
+    xaddr: Config.OnvifServiceAddr,
     user : 'droneview',
     pass : 'QAV500V2'
   });
