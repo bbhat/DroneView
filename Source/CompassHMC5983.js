@@ -169,8 +169,8 @@ function toHeading(compass, buffer)
   // console.log('raw camera heading: ' + heading);
 
   // Compansate for the board layout and earth's geographical rotation at Milpitas CA) which is at 16 degrees
-  heading = (heading + 360 - 90 - 16) % 360;
-  heading = (360 - heading);    // The chip on the reverse side
+  // The chip is at the bottom side at right angle
+  heading = (360 - ((heading + 90 - 16) % 360));
 
   // console.log('calculated camera heading: ' + heading);
 

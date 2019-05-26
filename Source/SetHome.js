@@ -24,15 +24,24 @@ device.init().then(() => {
 
   var profile = device.getCurrentProfile();
 
+  // var params = {
+  //  'ProfileToken': profile['token'],
+  //   'Position'    : {'x': 1, 'y': 1, 'z': 0.000},
+  //   'Speed'       : {'x': 1, 'y': 1, 'z': 1}
+  // };
+  //
+  // device.services.ptz.absoluteMove(params).then((result) => {
+
+  // }).catch((error) => {
+  //   console.error(error);
+  // });
+
   var params = {
    'ProfileToken': profile['token'],
-    'Speed'       : 1.0
   };
 
-  device.services.ptz.gotoHomePosition(params).then((result) => {
-  }).catch((error) => {
-    console.error(error);
-  });
+  // Send the GotoHomePosition command using the gotoHomePosition() method
+  device.services.ptz.setHomePosition(params);
 
   // Get the UDP stream URL
   let url = device.getUdpStreamUrl();
