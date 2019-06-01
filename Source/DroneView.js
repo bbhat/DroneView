@@ -32,9 +32,9 @@ var gpslink;
 var camera_compass;
 var camera_control;
 var camera_baro;
-var last_drone_gps_update = new Date();
-var last_drone_alt_update = new Date();
-var last_cam_gps_update = new Date();
+var last_drone_gps_update = null;
+var last_drone_alt_update = null;
+var last_cam_gps_update = null;
 
 const button = new Gpio(Config.PushButtonGPIONum, 'in', 'both', {debounceTimeout: 10});
 
