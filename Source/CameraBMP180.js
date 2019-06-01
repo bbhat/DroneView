@@ -63,7 +63,7 @@ var caliberationData = new CaliberationData;
 //------------------------------------------------------------------------------
 class CameraBaroStatus {
     constructor() {
-      this.timestamp = new Date();
+      this.timestamp = null;
       this.temperature = 0.0;
       this.pressure = 0.0;
       this.altitude = 0.0;

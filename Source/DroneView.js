@@ -128,7 +128,8 @@ function refreshView()
 
   if(dronelink != null) {
 
-    if((now - last_drone_gps_update) > NO_DATA_TIMEOUT_MS) {
+    if(last_drone_gps_update == null ||
+        ((now - last_drone_gps_update) > NO_DATA_TIMEOUT_MS)) {
       console.log('******************** No DRONE GPS update since ' + (now - last_drone_gps_update) / 1000 + ' seconds');
 
       // Still, use the last known drone Position...
@@ -140,7 +141,8 @@ function refreshView()
       console.log(drone_gps);
     }
 
-    if((now - last_drone_alt_update) > NO_DATA_TIMEOUT_MS) {
+    if(last_drone_alt_update == null ||
+        ((now - last_drone_alt_update) > NO_DATA_TIMEOUT_MS)) {
       console.log('******************** No DRONE altitude update since ' + (now - last_drone_alt_update) / 1000 + ' seconds');
 
       // Still, use the last known drone Position...
@@ -155,7 +157,8 @@ function refreshView()
   }
 
   if(gpslink != null) {
-    if((now - last_cam_gps_update) > NO_DATA_TIMEOUT_MS) {
+    if(last_cam_gps_update == null ||
+        ((now - last_cam_gps_update) > NO_DATA_TIMEOUT_MS)) {
       console.log('******************** No CAMERA GPS update since ' + (now - last_cam_gps_update) / 1000 + ' seconds');
 
       // Still, use the last known Position...
@@ -169,7 +172,8 @@ function refreshView()
   }
 
   if(camera_compass != null) {
-    if((now - camera_compass.status.timestamp) > NO_DATA_TIMEOUT_MS) {
+    if(camera_compass.status.timestamp == null ||
+        ((now - camera_compass.status.timestamp) > NO_DATA_TIMEOUT_MS)) {
       console.log('******************** No CAMERA Compass update since ' + (now - camera_compass.status.timestamp) / 1000 + ' seconds');
 
       // Still, use the last known Position...
@@ -183,7 +187,8 @@ function refreshView()
   }
 
   if(camera_baro != null) {
-    if((now - camera_baro.status.timestamp) > NO_DATA_TIMEOUT_MS) {
+    if(camera_baro.status.timestamp == null ||
+      ((now - camera_baro.status.timestamp) > NO_DATA_TIMEOUT_MS)) {
       console.log('******************** No CAMERA Baro update since ' + (now - camera_baro.status.timestamp) / 1000 + ' seconds');
 
       // Still, use the last known Position...

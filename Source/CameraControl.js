@@ -69,10 +69,18 @@ function redirectCamera(device)
 
 function setPosition(xdeg, ydeg)
 {
-  if(xdeg < -180.0) xdeg = -180.0;
-  if(xdeg > 180.0) xdeg = 180.0;
+  //<<<<<
+  // The HikVision Camera being used behaves madly if the rotation is not in the range -90 to +90
+  // if(xdeg < -180.0) xdeg = -180.0;
+  // if(xdeg > 180.0) xdeg = 180.0;
+  // if(ydeg < 0.0) ydeg = 0;
+  // if(ydeg > 90.0) xdeg = 90.0;
+
+  if(xdeg < -90.0) xdeg = -90.0;
+  if(xdeg > 90.0) xdeg = 90.0;
   if(ydeg < 0.0) ydeg = 0;
   if(ydeg > 90.0) xdeg = 90.0;
+  //>>>>>
 
   // console.log('move: ' + xdeg + ' ' + ydeg);
 
