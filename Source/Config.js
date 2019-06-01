@@ -7,8 +7,10 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-module.exports.MavlinkPortNum     = 2;
-module.exports.CameraGPSPortNum   = 1;
+module.exports.MavlinkPortNum         = 2;
+module.exports.CameraGPSPortNum       = 1;
+module.exports.PushButtonGPIONum      = 22;       // Connected to GPIO22
+module.exports.reset_active           = false;
 
 // module.exports.MavlinkPortNum     = 0;
 // module.exports.CameraGPSPortNum   = 0;

@@ -41,6 +41,10 @@ function cameraInit()
 
 function redirectCamera(device)
 {
+  if(Config.reset_active) {
+    return;
+  }
+
   var profile = device.getCurrentProfile();
 
   // First stop the current movement
@@ -53,7 +57,7 @@ function redirectCamera(device)
    device.services.ptz.stop(params).then((result) => {
       var params = {
        'ProfileToken': profile['token'],
-        'Position'    : {'x': positionX, 'y': positionY, 'z': 0.003},
+        'Position'    : {'x': positionX, 'y': positionY, 'z': 1.0},
         'Speed'       : {'x': 1, 'y': 1, 'z': 1}
       };
 
@@ -78,7 +82,7 @@ function setPosition(xdeg, ydeg)
 
   if(xdeg < -90.0) xdeg = -90.0;
   if(xdeg > 90.0) xdeg = 90.0;
-  if(ydeg < 0.0) ydeg = 0;
+  if(ydeg < 0.0) ydeg = 0.0;
   if(ydeg > 90.0) xdeg = 90.0;
   //>>>>>
 
@@ -95,5 +99,45 @@ function setPosition(xdeg, ydeg)
   positionY = (ydeg - 45.0) / 45.0;
 }
 
+function resetPosition()
+{
+  if(device == null) {
+    return;
+  }
+
+  console.log('Reset Camera Position');
+
+  // Reset the current position
+  positionX = 0.0;
+  positionY = 0.0;
+
+  // And the Camera position
+  var profile = device.getCurrentProfile();
+
+  // First stop the current movement
+  var params = {
+   'ProfileToken': profile['token'],
+   'PanTilt': true,
+   'Zoom': true
+   };
+
+   device.services.ptz.stop(params).then((result) => {
+    var params = {
+     'ProfileToken': profile['token'],
+      'Position'    : {'x': 0, 'y': 0, 'z': 0.0},
+      'Speed'       : {'x': 1, 'y': 1, 'z': 1}
+    };
+
+    device.services.ptz.absoluteMove(params).then((result) => {
+    }).catch((error) => {
+      console.error(error);
+    });
+
+  }).catch((error) => {
+    console.error(error);
+  });
+}
+
 module.exports.cameraInit = cameraInit;
 module.exports.setPosition = setPosition;
+module.exports.resetPosition = resetPosition;

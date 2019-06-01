@@ -22,6 +22,7 @@ const GPS           = require('gps');
 const Config        = require('./Config');
 const CameraBaro    = require('./CameraBMP180');
 const Math          = require('math');
+const Gpio          = require('onoff').Gpio;
 
 // List of all serial ports
 var allsports     = new Array();
@@ -34,6 +35,8 @@ var camera_baro;
 var last_drone_gps_update = new Date();
 var last_drone_alt_update = new Date();
 var last_cam_gps_update = new Date();
+
+const button = new Gpio(Config.PushButtonGPIONum, 'in', 'both', {debounceTimeout: 10});
 
 //------------------------------------------------------------------------------
 //        SerialPort
@@ -123,6 +126,11 @@ function refreshView()
   var camera_compass_status = null;
   var camera_baro_status = null;
   var missing_data = false;
+
+  // As long as reset button is pressed, we should should ignore all onputs
+  if(Config.reset_active) {
+    return;
+  }
 
   var now = new Date();
 
@@ -265,3 +273,25 @@ function redirectCamera(drone_gps, drone_baro, camera_gps, camera_compass_status
     }
   }
 }
+
+button.watch((err, value) => {
+  if (err) {
+    throw err;
+  }
+
+  console.log('Button: ' + value);
+
+  if(Config.reset_active == false && value == true) {
+    CameraControl.resetPosition();
+
+    last_drone_gps_update = null;
+    last_drone_alt_update = null;
+    last_cam_gps_update = null;
+  }
+
+  Config.reset_active = value;
+});
+
+// process.on('SIGINT', () => {
+// button.unexport();
+// });

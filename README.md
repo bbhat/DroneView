@@ -15,6 +15,7 @@ npm install i2c-bus
 npm install assert
 npm install math
 npm install node-onvif
+npm install onoff
 
 # Add following line to /home/pi/.bashrc file
 export NODE_PATH=/usr/local/lib/node_modules

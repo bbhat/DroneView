@@ -283,7 +283,7 @@ function calculateTruePrssure(baro, UT, UP)
 
   const ALT = 44330 * (1 - Math.pow((TP / Config.PressureAtSeaLevel), (1 / 5.255)));
   baro.status.altitude = ALT;
-  console.log('Altitude (meters): ' + baro.altitude);
+  // console.log('Altitude (meters): ' + baro.altitude);
 
   // To calculate PressureAtSeaLevel, we need a known TP and Altitude
   // const P0 = TP / Math.pow((1 - (10.47 / 44330)), 5.255);
