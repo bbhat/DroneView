@@ -160,7 +160,7 @@ function refreshView()
     else {
       drone_baro = dronelink.baro;
       console.log(drone_baro);
-      console.log(dronelink.temperature);
+      console.log('Drone Temperature: ' + dronelink.temperature + ' degrees');
     }
   }
 
@@ -252,6 +252,7 @@ function redirectCamera(drone_gps, drone_baro, camera_gps, camera_compass_status
 
     // Now the Y direction
     var ydeg = 0;
+
     if(drone_baro.alt >= camera_baro_status.altitude) {
       ydeg = Math.atan((drone_baro.alt - camera_baro_status.altitude) / drone_distance);
     }
